@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+//If there is export default then you can change name  , There can only be one export default 
 
 const app = express();
 
@@ -15,5 +16,12 @@ app.use(express.urlencoded({extended:true,limit:"16kb"}))//to accept url which a
 
 app.use(express.static("public"));
 app.use(cookieParser());  //to access and set user browser cookies
+
+//routes 
+import userRouter from './routes/user.routes.js'
+//Declare Routes 
+app.use("/api/v1/users",userRouter);
+
+
 export {app}
 

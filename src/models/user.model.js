@@ -1,5 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
+import jwt from "jsonwebtoken"
+import bcrypt from "bcrypt"
 
 const userSchema = new Schema(
   {
@@ -31,7 +33,7 @@ const userSchema = new Schema(
     coverImage: {
       type: String, // cloudinary url
     },
-    watchHistory: [
+    watchHistory: [ 
       {
         type: Schema.Types.ObjectId,
         ref: "Video",
@@ -52,17 +54,16 @@ const userSchema = new Schema(
 //it is a middleware only like use 
 //pre means do something just before ....( update just before save ) save is filed of action that we want before that 
 userSchema.pre("save", async function (next) {
-    if(!this.isModified("password")) return next();
-
+    if(!this.isModified("password")) return next();// to change it first time only 
     this.password = await bcrypt.hash(this.password, 10)
     next()
 })
 
 //we have added this method isPasswordCorrect
-
+//injecting methods to our schema 
 userSchema.methods.isPasswordCorrect = async function(password){
     return await bcrypt.compare(password, this.password)//pasword user enter ,encrypted password
-}
+} 
 
 //JWT is a bearer token
 userSchema.methods.generateAccessToken = function(){
@@ -70,7 +71,7 @@ userSchema.methods.generateAccessToken = function(){
         {
             //all right side field is key 
             //this means take it from db (coming from db )
-            _id: this._id,
+            _id: this._id,// all this is done to store this token and use it further for authentication 
             email: this.email,
             username: this.username,
             fullName: this.fullName
